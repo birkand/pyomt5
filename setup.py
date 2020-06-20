@@ -21,7 +21,7 @@ if sys.argv[-1] == 'publish':
 
 setup(
     name='pyOMT5',
-    version='0.0.28',
+    version='0.0.29',
     author='Paulo Rodrigues',
     author_email='paulorodriguesxv@gmail.com',
     license='MIT',
@@ -33,7 +33,7 @@ setup(
         'Intended Audience :: Developers',
         'Topic :: Office/Business :: Financial :: Investment',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     url='https://github.com/paulorodriguesxv/pyomt5',
     install_requires=['pyzmq', 'pandas'],
