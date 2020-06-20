@@ -3,9 +3,9 @@ import logging
 import pandas as pd
 from datetime import datetime, timedelta
 from pyomt5.api import MT5TimeFrame
-from pyomt5.api import MetatraderCom, ConnectionTimeoutError
+from pyomt5.api import MetatraderCom, ConnectionTimeoutError, DataNotFoundError
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("pyomt5")
 
 
 class StockPriceHistory():
@@ -13,13 +13,17 @@ class StockPriceHistory():
         self.use_cache = use_cache
         self.price_cache = dict()
 
-        self.number_of_retry = 10
+        self.number_of_retry = 1
         if kw.get('retry'):
             self.number_of_retry = kw.get('retry')
 
         self.request_timeout = 1.5
         if kw.get('timeout'):
             self.request_timeout = kw.get('timeout')
+
+        self.mt_timeout = 500
+        if kw.get('mt_timeout'):
+            self.mt_timeout = kw.get('mt_timeout')
 
     def _convert_to_dataframe(self, data):
         df = pd.DataFrame.from_dict(data)
@@ -64,7 +68,7 @@ class StockPriceHistory():
         end_date = to_date
         start_date = from_date
 
-        c = MetatraderCom()
+        c = MetatraderCom(timeout=self.mt_timeout)
         nRetry = 0
         price_history = None
         while nRetry < self.number_of_retry:
@@ -88,5 +92,8 @@ class StockPriceHistory():
                     f"Connection Failed. Waiting for reconnection.. Retry #{nRetry}"
                 )
                 time.sleep(self.request_timeout)
+
+        if not price_history:
+            raise DataNotFoundError()
 
         return self._prepare_data(symbol, price_history)

@@ -16,12 +16,15 @@ class ConnectionTimeoutError(Exception):
 
 
 class MetatraderCom():
+    def __init__(self, timeout=500):
+        self._timeout = timeout
+
     def __remote_send(self, socket, data):
         try:
             socket.send_string(data)
-            msg = socket.recv_string()
+            msg = socket.recv_string()            
             return (msg)
-        except zmq.Again:
+        except zmq.Again:            
             log.debug("Waiting for PUSH from MetaTrader 5..")
 
     def __get_socket(self):
@@ -29,7 +32,7 @@ class MetatraderCom():
 
         # Create REQ Socket
         reqSocket = context.socket(zmq.REQ)
-        reqSocket.setsockopt(zmq.RCVTIMEO, 500)
+        reqSocket.setsockopt(zmq.RCVTIMEO, self._timeout)
         reqSocket.connect("tcp://localhost:5555")
 
         return reqSocket
